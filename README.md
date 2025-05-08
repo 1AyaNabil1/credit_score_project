@@ -102,7 +102,7 @@ Exported `.csv` file includes:
 
 | Dashboard Preview |
 |-------------------|
-| ![Preview](resources/screenshot_dashboard.png) |
+| ![Preview](img\img2.png) |
 
 ---
 
@@ -120,5 +120,4 @@ MIT License — free to use, share, and adapt.
 
 ## 💡 Credits
 
-Developed by the LEAP Smart Control System team @ Alexandria University  
-Special thanks to the 2025 graduation project committee
+Developed by the Aya Nabil @ Alexandria University
