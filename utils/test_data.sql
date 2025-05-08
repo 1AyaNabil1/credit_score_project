@@ -42,3 +42,15 @@ INSERT INTO credit_mix (user_id, credit_types_used, total_credit_types) VALUES
 (1, 2, 4),
 (2, 1, 4),
 (3, 3, 4);
+# ===============================
+USE users_db;
+
+UPDATE users SET full_name = 'Ahlam Mohammed' WHERE user_id = 1;
+UPDATE users SET full_name = 'Retag Ayman'     WHERE user_id = 2;
+UPDATE users SET full_name = 'Nada Youssef'    WHERE user_id = 3;
+
+# ===============================
+INSERT INTO users (user_id, full_name, national_id) VALUES
+(4, 'Elham Hamed', 'EGY5566778899'),
+(5, 'Aya Ahmed',   'EGY6677889900'),
+(6, 'Aya Nabil',   'EGY7788990011');
