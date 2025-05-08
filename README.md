@@ -102,7 +102,7 @@ Exported `.csv` file includes:
 
 | Dashboard Preview |
 |-------------------|
-| ![Preview](img\img2.png) |
+| ![Preview](https://github.com/1AyaNabil1/credit_score_project/blob/main/img/img2.png) |
 
 ---
 
