@@ -1,4 +1,4 @@
-from db.history import get_history_score
+from db.mix import get_mix_score
 
-score = get_history_score(1)
-print(f"History Score for User 1: {score}")
+score = get_mix_score(1)
+print(f"Credit Mix Score for User 1: {score}")
