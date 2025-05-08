@@ -1,4 +1,4 @@
-from gui.GUI import launch_gui
+from GUI import launch_gui
 
 if __name__ == "__main__":
     launch_gui()
