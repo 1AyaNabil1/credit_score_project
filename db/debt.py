@@ -16,7 +16,7 @@ def get_debt_score(user_id):
             print(f"[WARN] No debt data for user_id={user_id}")
             return 0.0
 
-        used, limit = result
+        used, limit = float(result[0]), float(result[1])
         if limit == 0:
             return 0.0
 

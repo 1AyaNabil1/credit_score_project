@@ -16,7 +16,7 @@ def get_mix_score(user_id):
             print(f"[WARN] No mix data for user_id={user_id}")
             return 0.0
 
-        used, total = result
+        used, total = float(result[0]), float(result[1])
         if total == 0:
             return 0.0
 

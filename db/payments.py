@@ -16,7 +16,7 @@ def get_payment_score(user_id):
             print(f"[WARN] No payment data for user_id={user_id}")
             return 0.0
 
-        on_time, total = result
+        on_time, total = float(result[0]), float(result[1])
         if total == 0:
             return 0.0
 
