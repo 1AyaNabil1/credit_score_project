@@ -1,4 +1,6 @@
-from db.users import get_user_by_id, get_all_users
+from logic.calculator import calculate_iScore
+from db.users import get_all_users
 
-print(get_user_by_id(1))
-print(get_all_users())
+for user in get_all_users():
+    score = calculate_iScore(user["user_id"])
+    print(f"User: {user['full_name']}, iScore: {score}")
