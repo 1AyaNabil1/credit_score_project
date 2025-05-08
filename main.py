@@ -1,4 +1,4 @@
-from db.mix import get_mix_score
+from db.users import get_user_by_id, get_all_users
 
-score = get_mix_score(1)
-print(f"Credit Mix Score for User 1: {score}")
+print(get_user_by_id(1))
+print(get_all_users())
