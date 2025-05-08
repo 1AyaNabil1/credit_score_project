@@ -5,7 +5,7 @@ from mysql.connector import Error
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "your_mysql_password",  # ← Replace this
+    "password": "Ayanabil@123",  # ← Replace this
     "raise_on_warnings": True,
 }
 
