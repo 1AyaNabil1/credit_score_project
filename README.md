@@ -55,7 +55,7 @@ Each user’s credit score is calculated based on weighted inputs from:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-org/credit_score_project.git
+git clone https://github.com/1AyaNabil1/credit_score_project.git
 cd credit_score_project
 ```
 
