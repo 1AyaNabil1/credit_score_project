@@ -1,23 +1,23 @@
-# 💳 Credit Score Dashboard (iScore)
+# Credit Score Dashboard (iScore)
 
 A smart, stylish Python-based GUI application to **calculate and visualize credit scores (iScore)** using data distributed across multiple relational databases. Built with `customtkinter`, `matplotlib`, and MySQL, this system offers a polished user experience, color-coded analytics, and full CRUD support.
 
 ---
 
-## 🚀 Features
+## Features
 
-- 📊 **Modern Gauge Chart** (matplotlib): Live rendering of user iScore as a half-donut arc with color-coded performance bands.
-- 🎨 **Beautiful Flutter-inspired UI**: Light pink theme with rounded buttons and intuitive icons.
-- 👤 Add / Delete users directly from the GUI with instant refresh.
-- 💾 Export scores and ratings to CSV for external use.
-- 🔒 Private fields protected — national IDs are hidden from public views.
-- ✅ Fully synced with a distributed database structure (users, payments, debt, history, mix).
-- 🔁 Live user list refresh after updates.
-- 🖱️ GUI built with `customtkinter` for a mobile-like desktop experience.
+- **Modern Gauge Chart** (matplotlib): Live rendering of user iScore as a half-donut arc with color-coded performance bands.
+- **Beautiful Flutter-inspired UI**: Light pink theme with rounded buttons and intuitive icons.
+- Add / Delete users directly from the GUI with instant refresh.
+- Export scores and ratings to CSV for external use.
+- Private fields protected — national IDs are hidden from public views.
+- Fully synced with a distributed database structure (users, payments, debt, history, mix).
+- Live user list refresh after updates.
+- GUI built with `customtkinter` for a mobile-like desktop experience.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 credit_score_project/
@@ -37,7 +37,7 @@ credit_score_project/
 
 ---
 
-## 🧠 iScore Calculation Logic
+## iScore Calculation Logic
 
 Each user’s credit score is calculated based on weighted inputs from:
 
@@ -50,7 +50,7 @@ Each user’s credit score is calculated based on weighted inputs from:
 
 ---
 
-## 🖥️ Installation & Usage
+## Installation & Usage
 
 ### 1. Clone the repository
 
@@ -87,7 +87,7 @@ python gui/gui_run.py
 
 ---
 
-## 📂 Export Format
+## Export Format
 
 Exported `.csv` file includes:
 
@@ -98,7 +98,7 @@ Exported `.csv` file includes:
 
 ---
 
-## 🎨 Screenshots
+## Screenshots
 
 | Dashboard Preview |
 |-------------------|
@@ -106,18 +106,18 @@ Exported `.csv` file includes:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Pull requests are welcome. For major changes, open an issue first to discuss the roadmap.
 
 ---
 
-## 📄 License
+## License
 
 MIT License — free to use, share, and adapt.
 
 ---
 
-## 💡 Credits
+## Credits
 
 Developed by the Aya Nabil @ Alexandria University
