@@ -1,33 +1,16 @@
-from db.connection import get_all_connections
+from db.connection import db_cursor
 
 
-def get_mix_score(user_id):
-    conns = get_all_connections()
-    conn = conns["mix"]
-
-    try:
-        cursor = conn.cursor()
+def fetch_credit_mix(user_id):
+    """Return ``(credit_types_used, total_credit_types)`` from the user's most
+    recent credit-mix record, or None if there is no complete record."""
+    with db_cursor("mix") as cursor:
         cursor.execute(
-            "SELECT credit_types_used, total_credit_types FROM credit_mix WHERE user_id = %s",
+            "SELECT credit_types_used, total_credit_types FROM credit_mix "
+            "WHERE user_id = %s ORDER BY mix_id DESC LIMIT 1",
             (user_id,),
         )
-        result = cursor.fetchone()
-        if result is None:
-            print(f"[WARN] No mix data for user_id={user_id}")
-            return 0.0
-
-        used, total = float(result[0]), float(result[1])
-        if total == 0:
-            return 0.0
-
-        mix_score = (used / total) * 100
-        return round(mix_score, 2)
-
-    except Exception as e:
-        print(f"[ERROR] Failed to fetch mix score: {e}")
-        return 0.0
-    finally:
-        if "cursor" in locals():
-            cursor.close()
-        if conn:
-            conn.close()
+        row = cursor.fetchone()
+    if row is None or None in row:
+        return None
+    return int(row[0]), int(row[1])

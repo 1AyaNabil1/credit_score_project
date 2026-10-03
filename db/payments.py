@@ -1,31 +1,16 @@
-from db.connection import get_all_connections
+from db.connection import db_cursor
 
 
-def get_payment_score(user_id):
-    conns = get_all_connections()
-    conn = conns["payments"]
-
-    try:
-        cursor = conn.cursor()
+def fetch_payment_totals(user_id):
+    """Return ``(on_time_payments, total_payments)`` summed over all of the
+    user's payment records, or None if the user has no payment records."""
+    with db_cursor("payments") as cursor:
         cursor.execute(
-            "SELECT on_time_payments, total_payments FROM payment_records WHERE user_id = %s",
+            "SELECT SUM(on_time_payments), SUM(total_payments) "
+            "FROM payment_records WHERE user_id = %s",
             (user_id,),
         )
-        result = cursor.fetchone()
-        if result is None:
-            print(f"[WARN] No payment data for user_id={user_id}")
-            return 0.0
-
-        on_time, total = float(result[0]), float(result[1])
-        if total == 0:
-            return 0.0
-
-        payment_score = (on_time / total) * 100
-        return round(payment_score, 2)
-
-    except Exception as e:
-        print(f"[ERROR] Failed to fetch payment score: {e}")
-        return 0.0
-    finally:
-        cursor.close()
-        conn.close()
+        on_time, total = cursor.fetchone()
+    if total is None:
+        return None
+    return int(on_time or 0), int(total)
