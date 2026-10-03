@@ -3,6 +3,7 @@ from tkinter import messagebox, simpledialog, filedialog
 from db import users as user_db
 from db.connection import DatabaseError
 from logic.calculator import calculate_iScore, score_user
+from logic.export import build_rows, write_csv
 from logic.scoring import InvalidRecordError, score_band
 from logic.validation import ValidationError
 from PIL import Image
@@ -10,7 +11,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import Wedge
 from pathlib import Path
-import csv
 
 # Icons ship with the project, so find them relative to this file rather than
 # the current working directory.
@@ -278,21 +278,26 @@ class CreditScoreApp(ctk.CTk):
         self.clear_result()
 
     def export_csv(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".csv")
+        if not self.users:
+            messagebox.showwarning("Nothing to export", "There are no users to export.")
+            return
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".csv", filetypes=[("CSV files", "*.csv")], parent=self
+        )
         if not file_path:
             return
 
         try:
-            with open(file_path, mode="w", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow(["User ID", "Full Name", "Score", "Band"])
-                for u in self.users:
-                    score = calculate_iScore(u["user_id"])
-                    band, _ = self.interpret_score(score)
-                    writer.writerow([u["user_id"], u["full_name"], score, band])
-            messagebox.showinfo("Exported", "CSV exported successfully.")
-        except Exception as e:
+            rows = build_rows(self.users, calculate_iScore)
+        except (DatabaseError, InvalidRecordError) as e:
+            messagebox.showerror("Export Failed", f"Nothing was written. {e}")
+            return
+        try:
+            write_csv(file_path, rows)
+        except OSError as e:
             messagebox.showerror("Export Failed", str(e))
+            return
+        messagebox.showinfo("Exported", f"Exported {len(rows)} users to {file_path}.")
 
     def interpret_score(self, score):
         band = score_band(score)
