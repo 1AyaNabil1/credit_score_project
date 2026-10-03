@@ -22,7 +22,7 @@ INSERT INTO payment_records (user_id, on_time_payments, total_payments) VALUES
 (3, 20, 20),
 (4, 15, 20),
 (5, 20, 20),
-(6, 18, 20);  -- Aya Nabil again
+(6, 18, 20);
 
 -- ================================
 -- DEBT DATABASE
@@ -35,7 +35,7 @@ INSERT INTO credit_usage (user_id, used_credit, credit_limit) VALUES
 (3, 1000.00, 5000.00),
 (4, 4000.00, 10000.00),
 (5, 1500.00, 5000.00),
-(6, 3000.00, 10000.00);  -- repeat for Aya Nabil
+(6, 3000.00, 10000.00);
 
 -- ================================
 -- HISTORY DATABASE
@@ -48,7 +48,7 @@ INSERT INTO credit_history (user_id, account_open_date) VALUES
 (3, '2020-09-15'),
 (4, '2017-02-10'),
 (5, '2019-09-20'),
-(6, '2018-05-01');  -- Aya Nabil
+(6, '2018-05-01');
 
 -- ================================
 -- MIX REFERENCE DATABASE
@@ -61,4 +61,4 @@ INSERT INTO credit_mix (user_id, credit_types_used, total_credit_types) VALUES
 (3, 3, 4),
 (4, 2, 4),
 (5, 3, 4),
-(6, 2, 4);  -- Aya Nabil
+(6, 2, 4);
