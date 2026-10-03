@@ -40,7 +40,9 @@ class DBSettings:
         }
 
 
-def _positive_int(environ: Mapping[str, str], name: str, default: int, upper: int) -> int:
+def _positive_int(
+    environ: Mapping[str, str], name: str, default: int, upper: int
+) -> int:
     raw = environ.get(name, "").strip()
     if not raw:
         return default

@@ -1,16 +1,18 @@
+from pathlib import Path
+from tkinter import filedialog, messagebox, simpledialog
+
 import customtkinter as ctk
-from tkinter import messagebox, simpledialog, filedialog
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.patches import Wedge
+from PIL import Image
+
 from db import users as user_db
 from db.connection import DatabaseError
 from logic.calculator import calculate_iScore, score_user
 from logic.export import build_rows, write_csv
 from logic.scoring import InvalidRecordError, score_band
 from logic.validation import ValidationError
-from PIL import Image
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.patches import Wedge
-from pathlib import Path
 
 # Icons ship with the project, so find them relative to this file rather than
 # the current working directory.
