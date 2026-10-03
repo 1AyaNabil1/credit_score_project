@@ -6,8 +6,12 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import Wedge
-import os
+from pathlib import Path
 import csv
+
+# Icons ship with the project, so find them relative to this file rather than
+# the current working directory.
+RESOURCES_DIR = Path(__file__).resolve().parent.parent / "resources"
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -31,19 +35,16 @@ class CreditScoreApp(ctk.CTk):
         self.load_users()
 
     def load_icons(self):
-        base = "resources"
-        self.icons["calculate"] = ctk.CTkImage(
-            Image.open(os.path.join(base, "Calculate_iScore.png")), size=(20, 20)
-        )
-        self.icons["add"] = ctk.CTkImage(
-            Image.open(os.path.join(base, "Add_User.png")), size=(20, 20)
-        )
-        self.icons["delete"] = ctk.CTkImage(
-            Image.open(os.path.join(base, "Delete_User.png")), size=(20, 20)
-        )
-        self.icons["export"] = ctk.CTkImage(
-            Image.open(os.path.join(base, "Export_CSV.png")), size=(20, 20)
-        )
+        files = {
+            "calculate": "Calculate_iScore.png",
+            "add": "Add_User.png",
+            "delete": "Delete_User.png",
+            "export": "Export_CSV.png",
+        }
+        for key, filename in files.items():
+            self.icons[key] = ctk.CTkImage(
+                Image.open(RESOURCES_DIR / filename), size=(20, 20)
+            )
 
     def build_ui(self):
         self.header = ctk.CTkLabel(
