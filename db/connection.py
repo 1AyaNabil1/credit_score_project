@@ -68,12 +68,3 @@ def db_cursor(key: str) -> Iterator:
                 cursor.close()
         with suppress(MySQLError):
             conn.close()
-
-
-def get_all_connections():
-    """Open a connection to every database.
-
-    Deprecated: callers must close all five connections themselves. Use
-    db_cursor() instead.
-    """
-    return {key: connect_to_db(name) for key, name in DATABASES.items()}

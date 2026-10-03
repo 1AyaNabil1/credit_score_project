@@ -1,7 +1,10 @@
 import customtkinter as ctk
 from tkinter import messagebox, simpledialog, filedialog
-from db.users import get_all_users, get_user_by_id
-from logic.calculator import calculate_iScore
+from db import users as user_db
+from db.connection import DatabaseError
+from logic.calculator import calculate_iScore, score_user
+from logic.scoring import InvalidRecordError, score_band
+from logic.validation import ValidationError
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -12,6 +15,14 @@ import csv
 # Icons ship with the project, so find them relative to this file rather than
 # the current working directory.
 RESOURCES_DIR = Path(__file__).resolve().parent.parent / "resources"
+
+BAND_COLORS = {
+    "Poor": "#e53935",
+    "Fair": "#fb8c00",
+    "Good": "#b8860b",
+    "Very Good": "#43a047",
+    "Excellent": "#1e88e5",
+}
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -127,30 +138,55 @@ class CreditScoreApp(ctk.CTk):
         self.status.pack(pady=5)
 
     def load_users(self):
-        self.users = get_all_users()
+        try:
+            self.users = user_db.get_all_users()
+        except DatabaseError as e:
+            self.users = []
+            messagebox.showerror("Database error", str(e))
         values = [f"{u['user_id']} - {u['full_name']}" for u in self.users]
         self.user_combo.configure(values=values)
-        if values:
-            self.user_combo.set("Select a user")
+        # The list was rebuilt, so forget the old selection instead of acting
+        # on a user the combo box no longer shows.
+        self.selected_user_id = None
+        self.user_combo.set("Select a user" if values else "No users found")
 
     def on_user_selected(self, choice):
         self.selected_user_id = int(choice.split(" - ")[0])
 
+    def clear_result(self):
+        self.result_label.configure(text="")
+        self.status.configure(text="")
+        for widget in self.chart_frame.winfo_children():
+            widget.destroy()
+
     def calculate_score(self):
-        if not self.selected_user_id:
+        if self.selected_user_id is None:
             messagebox.showwarning("Missing", "Please select a user.")
             return
 
-        score = calculate_iScore(self.selected_user_id)
-        details = get_user_by_id(self.selected_user_id)
-        band, color = self.interpret_score(score)
+        try:
+            details = user_db.get_user_by_id(self.selected_user_id)
+            if details is None:
+                messagebox.showwarning("Not found", "That user no longer exists.")
+                self.load_users()
+                self.clear_result()
+                return
+            result = score_user(self.selected_user_id)
+        except (DatabaseError, InvalidRecordError) as e:
+            messagebox.showerror("Could not calculate iScore", str(e))
+            return
 
+        score = result.iscore
+        band, color = self.interpret_score(score)
         self.result_label.configure(
             text=f"{details['full_name']} → Score: {score:.2f} — {band}",
             text_color=color,
         )
         self.render_gauge(score, color)
-        self.status.configure(text=f"iScore calculated for {details['full_name']}")
+        status = f"iScore calculated for {details['full_name']}"
+        if result.missing:
+            status += f" (no data for {', '.join(result.missing)}; counted as 0)"
+        self.status.configure(text=status)
 
     def render_gauge(self, score, color):
         for widget in self.chart_frame.winfo_children():
@@ -198,63 +234,48 @@ class CreditScoreApp(ctk.CTk):
         plt.close(fig)
 
     def add_user_popup(self):
-        name = simpledialog.askstring("Add User", "Full name:")
-        if not name:
+        name = simpledialog.askstring("Add User", "Full name:", parent=self)
+        if name is None:
             return
-        nid = simpledialog.askstring("Add User", "National ID:")
-        if not nid:
+        nid = simpledialog.askstring("Add User", "National ID:", parent=self)
+        if nid is None:
             return
 
-        from db.connection import get_all_connections
-
-        conn = get_all_connections()["users"]
         try:
-            cur = conn.cursor()
-            cur.execute("SELECT MAX(user_id) FROM users")
-            max_id = cur.fetchone()[0] or 0
-            new_id = max_id + 1
-            cur.execute(
-                "INSERT INTO users (user_id, full_name, national_id) VALUES (%s, %s, %s)",
-                (new_id, name, nid),
-            )
-            conn.commit()
-            messagebox.showinfo("Success", f"User {name} added.")
-            self.load_users()
-        except Exception as e:
+            new_id = user_db.add_user(name, nid)
+        except ValidationError as e:
+            messagebox.showwarning("Invalid input", str(e))
+            return
+        except DatabaseError as e:
             messagebox.showerror("Error", str(e))
-        finally:
-            cur.close()
-            conn.close()
+            return
+        messagebox.showinfo("Success", f"User added with ID {new_id}.")
+        self.load_users()
 
     def delete_user(self):
-        if not self.selected_user_id:
+        if self.selected_user_id is None:
             messagebox.showwarning(
                 "Select a user first", "You must choose a user to delete."
             )
             return
 
-        from db.connection import get_all_connections
-
-        conn = get_all_connections()["users"]
+        user_id = self.selected_user_id
+        confirm = messagebox.askyesno(
+            "Delete?", f"Delete user ID {user_id} and all of their credit records?"
+        )
+        if not confirm:
+            return
         try:
-            confirm = messagebox.askyesno(
-                "Delete?", f"Delete user ID {self.selected_user_id}?"
-            )
-            if not confirm:
-                return
-            cur = conn.cursor()
-            cur.execute(
-                "DELETE FROM users WHERE user_id = %s", (self.selected_user_id,)
-            )
-            conn.commit()
-            messagebox.showinfo("Deleted", "User deleted.")
-            self.load_users()
-            self.result_label.configure(text="")
-        except Exception as e:
+            deleted = user_db.delete_user(user_id)
+        except DatabaseError as e:
             messagebox.showerror("Error", str(e))
-        finally:
-            cur.close()
-            conn.close()
+            return
+        if deleted:
+            messagebox.showinfo("Deleted", "User deleted.")
+        else:
+            messagebox.showwarning("Not found", "That user was already deleted.")
+        self.load_users()
+        self.clear_result()
 
     def export_csv(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".csv")
@@ -274,16 +295,8 @@ class CreditScoreApp(ctk.CTk):
             messagebox.showerror("Export Failed", str(e))
 
     def interpret_score(self, score):
-        if score < 580:
-            return "Poor", "#e53935"
-        elif score < 670:
-            return "Fair", "#fb8c00"
-        elif score < 740:
-            return "Good", "#b8860b"
-        elif score < 800:
-            return "Very Good", "#43a047"
-        else:
-            return "Excellent", "#1e88e5"
+        band = score_band(score)
+        return band, BAND_COLORS[band]
 
 
 def launch_gui():
