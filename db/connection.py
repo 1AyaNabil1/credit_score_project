@@ -1,19 +1,15 @@
 import mysql.connector
 from mysql.connector import Error
 
-# 🔐 Global connection settings (adjust your password if needed)
-DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "Ayanabil@123",  # ← Replace this
-    "raise_on_warnings": True,
-}
+from db.config import load_db_settings
 
 
 # Connect to a specific MySQL database
 def connect_to_db(db_name):
     try:
-        conn = mysql.connector.connect(database=db_name, **DB_CONFIG)
+        conn = mysql.connector.connect(
+            database=db_name, **load_db_settings().connect_kwargs()
+        )
         if conn.is_connected():
             print(f"[CONNECTED] to {db_name}")
             return conn
