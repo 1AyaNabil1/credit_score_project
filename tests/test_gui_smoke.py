@@ -1,32 +1,42 @@
 """Smoke test of the CustomTkinter window with the data layer faked out.
 
-Needs Tk and a display; it is skipped otherwise. CI provides one with
-xvfb-run. The window is withdrawn straight away, so nothing appears on screen.
+Needs Tk and a display, and is skipped without them unless
+ISCORE_REQUIRE_GUI_TESTS=1 (set in CI, which provides a display through
+xvfb-run). The window is withdrawn straight away, so nothing appears on
+screen.
 """
 
+import os
+
 import pytest
-
-tkinter = pytest.importorskip("tkinter")
-pytest.importorskip("customtkinter")
-
-import matplotlib  # noqa: E402
-
-matplotlib.use("Agg")  # the gauge is drawn on a Tk canvas; no pyplot windows
 
 pytestmark = pytest.mark.gui
 
 
-def _display_available():
+def _why_tk_is_unusable():
+    try:
+        import tkinter
+
+        import customtkinter  # noqa: F401
+    except ImportError as e:
+        return f"Tk is not installed: {e}"
     try:
         root = tkinter.Tk()
-    except tkinter.TclError:
-        return False
+    except tkinter.TclError as e:
+        return f"no display available for Tk: {e}"
     root.destroy()
-    return True
+    return None
 
 
-if not _display_available():
-    pytest.skip("no display available for Tk", allow_module_level=True)
+_reason = _why_tk_is_unusable()
+if _reason:
+    if os.environ.get("ISCORE_REQUIRE_GUI_TESTS") == "1":
+        raise RuntimeError(f"GUI tests are required but cannot run: {_reason}")
+    pytest.skip(_reason, allow_module_level=True)
+
+import matplotlib  # noqa: E402
+
+matplotlib.use("Agg")  # the gauge is drawn on a Tk canvas; no pyplot windows
 
 from db.connection import DatabaseError  # noqa: E402
 from gui import GUI  # noqa: E402
